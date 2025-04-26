@@ -15,7 +15,7 @@ export default async function({login, data, graphql, q, imports, queries, accoun
     // Add a full extra day to make sure we catch all of today's data
     const tomorrow = new Date(now)
     tomorrow.setDate(tomorrow.getDate() + 1)
-    tomorrow.setUTCHours(23)
+    tomorrow.setUTCHours(-1)
     tomorrow.setUTCMinutes(59)
     tomorrow.setUTCSeconds(59)
     tomorrow.setUTCMilliseconds(999)
