@@ -45,7 +45,7 @@ export default async function({login, data, graphql, q, imports, queries, accoun
     const size = 6
     let i = 0, j = 0
     let svg = `
-            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" style="margin-top: -130px; margin-left: -20px;" viewBox="0,0 480,${duration === "full-year" ? 270 : 170}">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" style="margin-top: -130px; margin-left: -5px;" viewBox="0,0 480,${duration === "full-year" ? 270 : 170}">
               ${
       [1, 2].map(k => `
                 <filter id="brightness${k}">
@@ -55,7 +55,7 @@ export default async function({login, data, graphql, q, imports, queries, accoun
                 </filter>`)
         .join("")
     }
-              <g transform="scale(4) translate(8, 0)">`
+              <g transform="scale(4) translate(10, 0)">`
     //Iterate through weeks
     for (const week of calendar.weeks) {
       svg += `<g transform="translate(${i * 1.7}, ${i})">`
