@@ -11,12 +11,14 @@ export default async function({login, data, graphql, q, imports, queries, accoun
 
     //Compute start day
     const now = new Date()
-    // Make sure "now" includes the full current day
-    const endOfToday = new Date(now)
-    endOfToday.setUTCHours(23)
-    endOfToday.setUTCMinutes(59)
-    endOfToday.setUTCSeconds(59)
-    endOfToday.setUTCMilliseconds(999)
+
+    // Add a full extra day to make sure we catch all of today's data
+    const tomorrow = new Date(now)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    tomorrow.setUTCHours(23)
+    tomorrow.setUTCMinutes(59)
+    tomorrow.setUTCSeconds(59)
+    tomorrow.setUTCMilliseconds(999)
 
     const start = new Date(now)
     if (duration === "full-year")
@@ -35,7 +37,7 @@ export default async function({login, data, graphql, q, imports, queries, accoun
     //Compute contribution calendar, highest contributions in a day, streaks and average commits per day
     console.debug(`metrics/compute/${login}/plugins > isocalendar > computing stats`)
     const calendar = {weeks: []}
-    const {streak, max, average} = await statistics({login, graphql, queries, start, end: endOfToday, calendar})
+    const {streak, max, average} = await statistics({login, graphql, queries, start, end: tomorrow, calendar})
     const reference = Math.max(...calendar.weeks.flatMap(({contributionDays}) => contributionDays.map(({contributionCount}) => contributionCount)))
 
     //Compute SVG
@@ -95,10 +97,15 @@ async function statistics({login, graphql, queries, start, end, calendar}) {
       to = end
     //Ensure that date ranges are not overlapping by setting it to previous day at 23:59:59.999
     const dto = new Date(to)
-    dto.setUTCHours(-1)
-    dto.setUTCMinutes(59)
-    dto.setUTCSeconds(59)
-    dto.setUTCMilliseconds(999)
+    // Make sure we don't trim off any part of the final day
+    if (dto.getTime() === end.getTime()) {
+      dto.setTime(end.getTime())
+    } else {
+      dto.setUTCHours(-1)
+      dto.setUTCMinutes(59)
+      dto.setUTCSeconds(59)
+      dto.setUTCMilliseconds(999)
+    }
     //Fetch data from api
     console.debug(`metrics/compute/${login}/plugins > isocalendar > loading calendar from "${from.toISOString()}" to "${dto.toISOString()}"`)
     const {user: {calendar: {contributionCalendar: {weeks}}}} = await graphql(queries.isocalendar.calendar({login, from: from.toISOString(), to: dto.toISOString()}))
@@ -109,10 +116,19 @@ async function statistics({login, graphql, queries, start, end, calendar}) {
   //Compute streaks
   for (const week of calendar.weeks) {
     for (const day of week.contributionDays) {
+      // Only count days up through today for streak calculations
+      const dayDate = new Date(day.date)
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+
       values.push(day.contributionCount)
       max = Math.max(max, day.contributionCount)
-      streak.current = day.contributionCount ? streak.current + 1 : 0
-      streak.max = Math.max(streak.max, streak.current)
+
+      // Only update streak for days up through today
+      if (dayDate <= today) {
+        streak.current = day.contributionCount ? streak.current + 1 : 0
+        streak.max = Math.max(streak.max, streak.current)
+      }
     }
   }
   //Compute average
