@@ -11,6 +11,13 @@ export default async function({login, data, graphql, q, imports, queries, accoun
 
     //Compute start day
     const now = new Date()
+    // Make sure "now" includes the full current day
+    const endOfToday = new Date(now)
+    endOfToday.setUTCHours(23)
+    endOfToday.setUTCMinutes(59)
+    endOfToday.setUTCSeconds(59)
+    endOfToday.setUTCMilliseconds(999)
+
     const start = new Date(now)
     if (duration === "full-year")
       start.setUTCFullYear(now.getUTCFullYear() - 1)
@@ -28,7 +35,7 @@ export default async function({login, data, graphql, q, imports, queries, accoun
     //Compute contribution calendar, highest contributions in a day, streaks and average commits per day
     console.debug(`metrics/compute/${login}/plugins > isocalendar > computing stats`)
     const calendar = {weeks: []}
-    const {streak, max, average} = await statistics({login, graphql, queries, start, end: now, calendar})
+    const {streak, max, average} = await statistics({login, graphql, queries, start, end: endOfToday, calendar})
     const reference = Math.max(...calendar.weeks.flatMap(({contributionDays}) => contributionDays.map(({contributionCount}) => contributionCount)))
 
     //Compute SVG
