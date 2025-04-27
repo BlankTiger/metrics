@@ -1578,7 +1578,12 @@ runs:
         # Forked action
         else
           echo "Using a forked version"
-          METRICS_IMAGE=metrics:forked-$METRICS_VERSION
+          METRICS_IMAGE=blanktiger/metrics:latest
+          # METRICS_IMAGE=metrics:forked-$METRICS_VERSION
+          if ! docker image pull $METRICS_IMAGE; then
+            echo "Failed to fetch docker image from GitHub registry, will rebuild it locally"
+            METRICS_IMAGE=metrics:$METRICS_VERSION
+          fi
         fi
         echo "Image name: $METRICS_IMAGE"
 
