@@ -50,14 +50,15 @@ All product and company names are trademarks™ or registered® trademarks of th
 <ul>
 <li><code>half-year</code>: 180 days</li>
 <li><code>full-year</code>: 1 year</li>
+<li><code>two-years</code>: 2 years, rendered as two full-year calendars stacked on top of each other</li>
 </ul>
 <img width="900" height="1" alt=""></td>
   </tr>
   <tr>
     <td nowrap="nowrap"><b>type:</b> <code>string</code>
 <br>
-<b>default:</b> half-year<br>
-<b>allowed values:</b><ul><li>half-year</li><li>full-year</li></ul></td>
+<b>default:</b> two-years<br>
+<b>allowed values:</b><ul><li>half-year</li><li>full-year</li><li>two-years</li></ul></td>
   </tr>
 </table>
 <!--/options-->
@@ -84,6 +85,17 @@ with:
   base: ""
   plugin_isocalendar: yes
   plugin_isocalendar_duration: full-year
+
+```
+```yaml
+name: Two-years calendar
+uses: lowlighter/metrics@latest
+with:
+  filename: metrics.plugin.isocalendar.twoyears.svg
+  token: ${{ secrets.METRICS_TOKEN }}
+  base: ""
+  plugin_isocalendar: yes
+  plugin_isocalendar_duration: two-years
 
 ```
 <!--/examples-->

@@ -13,3 +13,11 @@
     plugin_isocalendar_duration: full-year
     use_mocked_data: 'yes'
     verify: 'yes'
+- name: 📅 Isometric commit calendar - Two-years calendar
+  uses: lowlighter/metrics@latest
+  with:
+    token: MOCKED_TOKEN
+    plugin_isocalendar: 'yes'
+    plugin_isocalendar_duration: two-years
+    use_mocked_data: 'yes'
+    verify: 'yes'

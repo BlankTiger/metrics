@@ -21,7 +21,9 @@ export default async function({login, data, graphql, q, imports, queries, accoun
     tomorrow.setUTCMilliseconds(999)
 
     const start = new Date(now)
-    if (duration === "full-year")
+    if (duration === "two-years")
+      start.setUTCFullYear(now.getUTCFullYear() - 2)
+    else if (duration === "full-year")
       start.setUTCFullYear(now.getUTCFullYear() - 1)
     else
       start.setUTCHours(-180 * 24)
@@ -43,9 +45,21 @@ export default async function({login, data, graphql, q, imports, queries, accoun
     //Compute SVG
     console.debug(`metrics/compute/${login}/plugins > isocalendar > computing svg render`)
     const size = 6
-    let i = 0, j = 0
+    //Split weeks into one block per year when displaying two years, otherwise a single block
+    const blocks = duration === "two-years"
+      ? [calendar.weeks.slice(0, Math.ceil(calendar.weeks.length / 2)), calendar.weeks.slice(Math.ceil(calendar.weeks.length / 2))]
+      : [calendar.weeks]
+    //Render each block, stacking them vertically (older year on top)
+    let blocks_svg = "", y_offset = 0
+    for (const weeks of blocks) {
+      const {svg: block_svg, height} = render_calendar(weeks, reference, size)
+      blocks_svg += `<g transform="translate(0, ${y_offset})">${block_svg}</g>`
+      y_offset += height
+    }
+    const margin_top = duration === "two-years" ? -60 : -130
+    const view_box_height = duration === "two-years" ? 540 : (duration === "full-year" ? 270 : 170)
     let svg = `
-            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" style="margin-top: -130px; margin-left: 0px;" viewBox="0,0 480,${duration === "full-year" ? 270 : 170}">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" style="margin-top: ${margin_top}px; margin-left: 0px;" viewBox="0,0 480,${view_box_height}">
               ${
       [1, 2].map(k => `
                 <filter id="brightness${k}">
@@ -55,26 +69,7 @@ export default async function({login, data, graphql, q, imports, queries, accoun
                 </filter>`)
         .join("")
     }
-              <g transform="scale(4) translate(11, 0)">`
-    //Iterate through weeks
-    for (const week of calendar.weeks) {
-      svg += `<g transform="translate(${i * 1.7}, ${i})">`
-      j = 0
-      //Iterate through days
-      for (const day of week.contributionDays) {
-        const ratio = (day.contributionCount / reference) || 0
-        svg += `
-                    <g transform="translate(${j * -1.7}, ${j + (1 - ratio) * size})">
-                      <path fill="${day.color}" d="M1.7,2 0,1 1.7,0 3.4,1 z" />
-                      <path fill="${day.color}" filter="url(#brightness1)" d="M0,1 1.7,2 1.7,${2 + ratio * size} 0,${1 + ratio * size} z" />
-                      <path fill="${day.color}" filter="url(#brightness2)" d="M1.7,2 3.4,1 3.4,${1 + ratio * size} 1.7,${2 + ratio * size} z" />
-                    </g>`
-        j++
-      }
-      svg += "</g>"
-      i++
-    }
-    svg += "</g></svg>"
+              <g transform="scale(4) translate(11, 0)">${blocks_svg}</g></svg>`
 
     //Results
     return {streak, max, average, svg, duration}
@@ -83,6 +78,30 @@ export default async function({login, data, graphql, q, imports, queries, accoun
   catch (error) {
     throw imports.format.error(error)
   }
+}
+
+/**Render a single isometric calendar block from a list of weeks, returns its svg and its vertical extent (pre-scale units) */
+function render_calendar(weeks, reference, size) {
+  let i = 0, j = 0, svg = ""
+  //Iterate through weeks
+  for (const week of weeks) {
+    svg += `<g transform="translate(${i * 1.7}, ${i})">`
+    j = 0
+    //Iterate through days
+    for (const day of week.contributionDays) {
+      const ratio = (day.contributionCount / reference) || 0
+      svg += `
+                <g transform="translate(${j * -1.7}, ${j + (1 - ratio) * size})">
+                  <path fill="${day.color}" d="M1.7,2 0,1 1.7,0 3.4,1 z" />
+                  <path fill="${day.color}" filter="url(#brightness1)" d="M0,1 1.7,2 1.7,${2 + ratio * size} 0,${1 + ratio * size} z" />
+                  <path fill="${day.color}" filter="url(#brightness2)" d="M1.7,2 3.4,1 3.4,${1 + ratio * size} 1.7,${2 + ratio * size} z" />
+                </g>`
+      j++
+    }
+    svg += "</g>"
+    i++
+  }
+  return {svg, height: i + size + 2}
 }
 
 /**Compute max and current streaks */

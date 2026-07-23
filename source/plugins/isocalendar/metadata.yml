@@ -24,8 +24,10 @@ inputs:
 
       - `half-year`: 180 days
       - `full-year`: 1 year
+      - `two-years`: 2 years, rendered as two full-year calendars stacked on top of each other
     type: string
-    default: half-year
+    default: two-years
     values:
       - half-year
       - full-year
+      - two-years
