@@ -876,7 +876,7 @@ It can result in cropped or oversized outputs.</p>
   <tr>
     <td nowrap="nowrap"><b>type:</b> <code>string</code>
 <br>
-<b>default:</b> 0, 8 + 11%<br></td>
+<b>default:</b> 0, 7<br></td>
   </tr>
   <tr>
     <td nowrap="nowrap"><h4><code>config_output</code></h4></td>

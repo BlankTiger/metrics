@@ -344,7 +344,7 @@ inputs:
 
       Percentage are relative to computed dimensions
     type: string
-    default: 0, 8 + 11%
+    default: 0, 7
 
   config_output:
     description: |

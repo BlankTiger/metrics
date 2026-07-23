@@ -50,14 +50,14 @@ export default async function({login, data, graphql, q, imports, queries, accoun
       ? [calendar.weeks.slice(0, Math.ceil(calendar.weeks.length / 2)), calendar.weeks.slice(Math.ceil(calendar.weeks.length / 2))]
       : [calendar.weeks]
     //Render each block, stacking them vertically (older year on top)
-    let blocks_svg = "", y_offset = 0
+    let blocks_svg = "", y_offset = -3
     for (const weeks of blocks) {
       const {svg: block_svg, height} = render_calendar(weeks, reference, size)
-      blocks_svg += `<g transform="translate(0, ${y_offset})">${block_svg}</g>`
-      y_offset += height
+      blocks_svg += `<g transform="translate(2, ${y_offset})">${block_svg}</g>`
+      y_offset += 29
     }
     const margin_top = duration === "two-years" ? -60 : -130
-    const view_box_height = duration === "two-years" ? 540 : (duration === "full-year" ? 270 : 170)
+    const view_box_height = duration === "two-years" ? 370 : (duration === "full-year" ? 270 : 170)
     let svg = `
             <svg version="1.1" xmlns="http://www.w3.org/2000/svg" style="margin-top: ${margin_top}px; margin-left: 0px;" viewBox="0,0 480,${view_box_height}">
               ${
