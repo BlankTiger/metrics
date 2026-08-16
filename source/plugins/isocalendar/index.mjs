@@ -57,7 +57,7 @@ export default async function({login, data, graphql, q, imports, queries, accoun
       y_offset += 29
     }
     const margin_top = duration === "two-years" ? -60 : -130
-    const view_box_height = duration === "two-years" ? 370 : (duration === "full-year" ? 270 : 170)
+    const view_box_height = duration === "two-years" ? 400 : (duration === "full-year" ? 270 : 170)
     let svg = `
             <svg version="1.1" xmlns="http://www.w3.org/2000/svg" style="margin-top: ${margin_top}px; margin-left: 0px;" viewBox="0,0 480,${view_box_height}">
               ${
